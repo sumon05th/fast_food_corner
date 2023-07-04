@@ -145,8 +145,8 @@ app.post("/edit_product_quantity", function (req, res) {
 });
 
 app.get("/checkout", function (req, res) {
-    var total = req.session.total;
-  res.render("pages/checkout",{total:total});
+  var total = req.session.total;
+  res.render("pages/checkout", { total: total });
 });
 
 app.post("/place_order", function (req, res) {
@@ -159,12 +159,12 @@ app.post("/place_order", function (req, res) {
   var status = "not paid";
 
   var date = new Date();
-  var products_ids="";
+  var products_ids = "";
   var id = Date.now();
   req.session.order_id = id;
 
 
- var con= mysql.createConnection({
+  var con = mysql.createConnection({
     host: "localhost",
     user: "root",
     password: "",
@@ -172,118 +172,118 @@ app.post("/place_order", function (req, res) {
   });
 
   var cart = req.session.cart;
-  for(let i=0; i<cart.length; i++){
-     products_ids = products_ids + "," +cart[i].id;
+  for (let i = 0; i < cart.length; i++) {
+    products_ids = products_ids + "," + cart[i].id;
   }
 
 
-  con.connect((err)=>{
-    if(err){
-       console.log(err);
-    }else{
-       var query = "INSERT INTO orders (id,cost,name,email,status,city,address,phone,date,products_ids) VALUES ?";
-       var values = [
-          [id,cost,name,email,status,city,address,phone,date,products_ids]
-       ];
-       
-       con.query(query,[values],(err,result)=>{
+  con.connect((err) => {
+    if (err) {
+      console.log(err);
+    } else {
+      var query = "INSERT INTO orders (id,cost,name,email,status,city,address,phone,date,products_ids) VALUES ?";
+      var values = [
+        [id, cost, name, email, status, city, address, phone, date, products_ids]
+      ];
 
-          for(let i=0;i<cart.length;i++){
-             var query = "INSERT INTO order_items (order_id,product_ids,product_name,product_price,product_image,product_quantity,order_date) VALUES ?";
-             var values = [
-                [id,cart[i].id,cart[i].name,cart[i].price,cart[i].image,cart[i].quantity,new Date()]
-             ];
-             con.query(query,[values],(err,result)=>{})
-          }
+      con.query(query, [values], (err, result) => {
 
-
-          res.redirect('/payment')
-             
-       
-        
-          
-       })
-    }
- })
- 
-  
-})
-
-
-
-app.get('/payment',function(req,res){
-    var total =req.session.total;
-    res.render('pages/payment',{total:total});
-})
- 
-app.get("/verify_payment",function(req,res){
-    var transaction_id =req.query.transaction_id;
-    var order_id =req.session.order_id;
-
-    var con = mysql.createConnection({
-        host: "localhost",
-        user: "root",
-        password: "",
-        database: "js_project",
-      });
-    
-    con.connect((err)=>{
-        if(err){
-           console.log(err);
-        }else{
-           var query = "INSERT INTO payments (order_id,transaction_id,date) VALUES ?";
-           var values = [
-            [order_id,transaction_id,new Date()]
-           ]
-           con.query(query,[values],(err,result)=> {
-            res.redirect('thank_you');
-
-           })
-
+        for (let i = 0; i < cart.length; i++) {
+          var query = "INSERT INTO order_items (order_id,product_ids,product_name,product_price,product_image,product_quantity,order_date) VALUES ?";
+          var values = [
+            [id, cart[i].id, cart[i].name, cart[i].price, cart[i].image, cart[i].quantity, new Date()]
+          ];
+          con.query(query, [values], (err, result) => { })
         }
-        })
-           
 
 
-});
+        res.redirect('/payment')
 
 
 
-app.get("/thank_you",function(req,res){
-    var order_id = req.session.order_id;
-    res.render("pages/thank_you",{order_id:order_id});
-});
+
+      })
+    }
+  })
 
 
-app.get('/single_product',function(req,res){
-    var id = req.query.id;
-    var con = mysql.createConnection({
-        host: "localhost",
-        user: "root",
-        password: "",
-        database: "js_project",
-      });
-    
-      con.query("SELECT*FROM products WHERE id ='"+ id +"'", (err, result) => {
-        res.render("pages/single_product", { result: result });
-      });
-});
-
-
-app.get('/products',function(req,res){
-    var con = mysql.createConnection({
-        host: "localhost",
-        user: "root",
-        password: "",
-        database: "js_project",
-      });
-    
-      con.query("SELECT*FROM products", (err, result) => {
-        res.render("pages/products", { result: result });
-      });
-    
 })
 
-app.get('/about',function(req,res){
-    res.render('pages/about');
+
+
+app.get('/payment', function (req, res) {
+  var total = req.session.total;
+  res.render('pages/payment', { total: total });
+})
+
+app.get("/verify_payment", function (req, res) {
+  var transaction_id = req.query.transaction_id;
+  var order_id = req.session.order_id;
+
+  var con = mysql.createConnection({
+    host: "localhost",
+    user: "root",
+    password: "",
+    database: "js_project",
+  });
+
+  con.connect((err) => {
+    if (err) {
+      console.log(err);
+    } else {
+      var query = "INSERT INTO payments (order_id,transaction_id,date) VALUES ?";
+      var values = [
+        [order_id, transaction_id, new Date()]
+      ]
+      con.query(query, [values], (err, result) => {
+        res.redirect('thank_you');
+
+      })
+
+    }
+  })
+
+
+
+});
+
+
+
+app.get("/thank_you", function (req, res) {
+  var order_id = req.session.order_id;
+  res.render("pages/thank_you", { order_id: order_id });
+});
+
+
+app.get('/single_product', function (req, res) {
+  var id = req.query.id;
+  var con = mysql.createConnection({
+    host: "localhost",
+    user: "root",
+    password: "",
+    database: "js_project",
+  });
+
+  con.query("SELECT*FROM products WHERE id ='" + id + "'", (err, result) => {
+    res.render("pages/single_product", { result: result });
+  });
+});
+
+
+app.get('/products', function (req, res) {
+  var con = mysql.createConnection({
+    host: "localhost",
+    user: "root",
+    password: "",
+    database: "js_project",
+  });
+
+  con.query("SELECT*FROM products", (err, result) => {
+    res.render("pages/products", { result: result });
+  });
+
+})
+
+app.get('/about', function (req, res) {
+  res.render('pages/about');
 })
